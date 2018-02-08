@@ -48,6 +48,10 @@
             .gpx ul.info li { color: #666; padding: 2px; display: inline; }
             .gpx ul.info li span { color: black; }
         </style>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.0.3/leaflet.js"></script>
+        <script src="https://rawgithub.com/mpetazzoni/leaflet-gpx/master/gpx.js"></script>
+        <script src="https://mapbox.github.io/leaflet-image/leaflet-image.js"></script>
+        <script src="prettymap.js"></script>
     </head>
     <body>
         <section id="demo" class="gpx" data-gpx-source="demo.gpx" data-map-target="demo-map">
@@ -60,6 +64,10 @@
                 <div class="map" id="demo-map"></div>
             </article>
 
+            <script type="application/javascript">
+                var map = new com.sweattrails.PrettyMap(document.getElementById('demo'));
+            </script>
+
             <footer>
                 <ul class="info">
                     <li>Distance:&nbsp;<span class="distance"></span>&nbsp;km</li>
@@ -67,95 +75,41 @@
                     <li>Elevation:&nbsp;+<span class="elevation-gain"></span>&nbsp;m
                         -<span class="elevation-loss"></span>&nbsp;m
                         (net:&nbsp;<span class="elevation-net"></span>&nbsp;m)</li>
-                    &mdash; <li><button id="image-btn" onclick="render_image()">Snapshot</button></li>
+                    &mdash;
+                    <li><button id="elevation-btn" onclick="map.elevation()">Elevation</button></li>
+                    <li><button id="image-btn" onclick="map.renderImage('images')">Snapshot</button></li>
                 </ul>
-                <div id="images"/>
+                <div id="layers">
+                    <form id="iconChoices">
+                        <fieldset>
+                            <legend>Select icon</legend>
+                            <div>
+                                <input type="radio" id="choiceLogo" name="iconChoices" value="logo" checked="/">
+                                <label for="choiceLogo">Logo</label>
+                                <input type="radio" id="choiceWater" name="iconChoices" value="water">
+                                <label for="choiceWater">Waterstation</label>
+                                <input type="radio" id="choiceFirstaid" name="iconChoices" value="firstaid">
+                                <label for="choiceFirstaid">First Aid</label>
+                                <input type="radio" id="choicePolice" name="iconChoices" value="police">
+                                <label for="choicePolice">Police</label>
+                            </div>
+                        </fieldset>
+                    </form>
+                </div>
+                <div id="images"></div>
             </footer>
         </section>
 
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.0.3/leaflet.js"></script>
-        <script src="https://rawgithub.com/mpetazzoni/leaflet-gpx/master/gpx.js"></script>
-        <script src="https://mapbox.github.io/leaflet-image/leaflet-image.js"></script>
         <script type="application/javascript">
-          var map
-      
-          function display_gpx(elt) {
-            if (!elt) return;
-
-            var url = elt.getAttribute('data-gpx-source');
-            var mapid = elt.getAttribute('data-map-target');
-            if (!url || !mapid) return;
-
-            function _t(t) { return elt.getElementsByTagName(t)[0]; }
-            function _c(c) { return elt.getElementsByClassName(c)[0]; }
-
-            map = L.map(mapid, { preferCanvas: true });
-            osm = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                  attribution: 'Map data &copy; <a href="http://www.osm.org">OpenStreetMap</a>'
-                }).addTo(map);
-            osm_bike = L.tileLayer('http://{s}.tile.opencyclemap.org/cycle/{z}/{x}/{y}.png', {
-                  attribution: 'Map data &copy; <a href="http://www.osm.org">OpenStreetMap</a>'
-                }).addTo(map);
-            mapbox_dark = L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
-                attribution: 'Map data &#169; OpenStreetMap contributors, CC-BY-SA, Imagery &#169; Mapbox',
-                  id: 'mapbox.dark',
-                accessToken: 'pk.eyJ1IjoiamFuZGV2IiwiYSI6ImNpenBzbzFzNTAwcmgycnFnd3QycWFpbTgifQ.vIht_WItDuJwLuatY_S5xg'}).addTo(map);
-            mapbox_rbh = L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
-                attribution: 'Map data &#169; OpenStreetMap contributors, CC-BY-SA, Imagery &#169; Mapbox',
-                id: 'mapbox.run-bike-hike',
-                accessToken: 'pk.eyJ1IjoiamFuZGV2IiwiYSI6ImNpenBzbzFzNTAwcmgycnFnd3QycWFpbTgifQ.vIht_WItDuJwLuatY_S5xg'}).addTo(map);
-
-            var control = L.control.layers({
-                "openstreetmap": osm,
-                "openstreetmap Cycle": osm_bike,
-                "Mapbox Dark": mapbox_dark,
-                "Mapbox Run Bike Hike": mapbox_rbh
-            }
-            , null).addTo(map);
-
-            new L.GPX(url, {
-              async: true,
-              marker_options: {
-                startIconUrl: 'pin-icon-start.png',
-                endIconUrl:   'pin-icon-end.png',
-                shadowUrl:    'pin-shadow.png',
-              },
-              polyline_options: {
-                  weight: 5,
-                  color: '#4e95ff'
-              }
-            }).on('loaded', function(e) {
-              var gpx = e.target;
-              map.fitBounds(gpx.getBounds());
-              control.addOverlay(gpx, gpx.get_name());
-
-              /*
-               * Note: the code below relies on the fact that the demo GPX file is
-               * an actual GPS track with timing and heartrate information.
-               */
-              _t('h3').textContent = gpx.get_name();
-              _c('start').textContent = gpx.get_start_time().toDateString() + ', '
-                + gpx.get_start_time().toLocaleTimeString();
-              _c('distance').textContent = gpx.get_distance().toFixed(2);
-              _c('elevation-gain').textContent = gpx.get_elevation_gain().toFixed(0);
-              _c('elevation-loss').textContent = gpx.get_elevation_loss().toFixed(0);
-              _c('elevation-net').textContent  = (gpx.get_elevation_gain() - gpx.get_elevation_loss()).toFixed(0);
-            }).addTo(map);
-          }
-      
-          function render_image() {
-            leafletImage(map, function(err, canvas) {
-                var img = document.createElement('img');
-                var dimensions = map.getSize();
-                img.width = dimensions.x / 2;
-                img.height = dimensions.y / 2;
-                img.src = canvas.toDataURL();
-                document.getElementById('images').innerHTML = '';
-                document.getElementById('images').appendChild(img);
-              });
-          }
-
-          display_gpx(document.getElementById('demo'));
+            map.displayGPX(function(map) {
+                map._t('h3').textContent = map.gpx.get_name();
+                map._c('start').textContent = map.gpx.get_start_time().toDateString() + ', '
+                    + map.gpx.get_start_time().toLocaleTimeString();
+                map._c('distance').textContent = (map.gpx.get_distance()/1000).toFixed(2);
+                map._c('elevation-gain').textContent = map.gpx.get_elevation_gain().toFixed(0);
+                map._c('elevation-loss').textContent = map.gpx.get_elevation_loss().toFixed(0);
+                map._c('elevation-net').textContent  = (map.gpx.get_elevation_gain() - map.gpx.get_elevation_loss()).toFixed(0);
+            });
         </script>
     </body>
 </html>
