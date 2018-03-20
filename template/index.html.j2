@@ -1,0 +1,44 @@
+{% extends "base.html.j2" %}
+
+{% block imports %}
+<!-- <script src="/js/users.js" type="text/javascript"></script> -->
+{% endblock %}
+
+{% block tabs %}
+
+<script>
+    function refresh_table() {
+        $("projects").render();
+    }
+</script>
+
+{% if user %}
+    <st:tab code="projects" label="Projects">
+        <st:table name="projects" url="/json/project">
+            <st:sort name="project_name"/>
+            <st:header>
+                <st:action label="New" action="new"/>
+            </st:header>
+            <st:column label="Name" type="link" property="project_name" url="/project/$key" width="25%"/>
+            <st:column label="Description" type="link" property="description" url="/project/$key" width="75%"/>
+            <st:dataform url="/json/project" onsubmitted="refresh_table">
+                <st:field property="project_name" type="text" label="Name"/>
+                <st:field property="description" type="text" label="Description"/>
+                <st:action mode="new;edit" label="Save" action="save"/>
+                <st:action mode="view;new;edit" label="Cancel" action="cancel"/>
+            </st:dataform>
+            <st:footer>
+                <st:action label="New" action="new"/>
+            </st:footer>
+        </st:table>
+    </st:tab>
+{% else %}
+    <st:tab code="rw" label="Please Log in">
+        <div align="center">
+            <img src="/image/runwaterloo.png"/><br/>
+            Please log in
+        </div>
+    </st:tab>
+{% endif %}
+
+{% endblock tabs %}

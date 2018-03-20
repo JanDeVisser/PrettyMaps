@@ -1,0 +1,92 @@
+{% extends "base.html.j2" %}
+
+{% block imports %}
+    {{ import_maps() }}
+    <script src="https://rawgithub.com/mpetazzoni/leaflet-gpx/master/gpx.js"></script>
+    <script src="https://mapbox.github.io/leaflet-image/leaflet-image.js"></script>
+    {{ import_script("prettymap") }}
+{% endblock %}
+
+{% block css %}
+    #map-gpx-map {
+        border: 1px #888 solid;
+        border-left: none;
+        border-right: 0none;
+        width: 1000px;
+        height: 700px;
+        margin: 0;
+    }
+{% endblock %}
+
+{% block tabs %}
+
+<script>
+    var key = "{{key}}";
+
+    function getSelectedLayer() {
+        return this.getLayer("logo");
+    }
+
+    function snapshot() {
+        var map = $("gpx-map");
+        map.renderImage(document.getElementById("snapshots"));
+    }
+</script>
+
+<st:tab code="map" label="Map">
+    <st:form name="map" url="/json/map/$key">
+        <st:field label="Name" type="text" property="map_name"/>
+        <st:field label="Description" type="text" property="description"/>
+        <st:footer>
+            <st:action mode="view" label="Upload GPX" action="form" form="upload-gpx" form-mode="new"/>
+            {% if gpx_map %}
+                <st:action mode="view" label="Snapshot" action="snapshot" name="snapshot"/>
+            {% endif %}
+            <st:action mode="view" label="Edit" action="edit"/>
+            <st:action mode="edit" label="Save" action="save"/>
+            <st:action mode="edit" label="Cancel" action="cancel"/>
+        </st:footer>
+    </st:form>
+    {% if gpx_map %}
+        <st:map id="gpx-map" selectedLayer="getSelectedLayer">
+            <st:layers>
+                <st:tile id="osm.basic"/>
+                <st:tile id="osm.opencyclemap"/>
+                <st:tile id="mapbox.streets"/>
+                <st:tile id="mapbox.dark"/>
+                <st:tile id="mapbox.bikehike"/>
+                <st:gpx url="/gpx/{{key}}">
+                    <st:polyline_options>
+                        <st:option name="weight">5</st:option>
+                        <st:option name="color">#4e95ff</st:option>
+                    </st:polyline_options>
+                    <st:marker_options>
+                        <st:option name="iconSize">16</st:option>
+                        <st:option name="startIconUrl">/image/pin-icon-start.png</st:option>
+                        <st:option name="endIconUrl">/image/finish.png</st:option>
+                        <st:option name="shadowUrl">/image/pin-shadow.png</st:option>
+                    </st:marker_options>
+                </st:gpx>
+                {% for layer in config.layers %}
+                    <st:icons id="{{layer.name}}" label="{{layer.label}}" url="/layer/{{layer.name}}/{{key}}"
+                              coordinate="position" icon="{{layer.icon}}">
+                        {% if layer.size %}
+                            <st:option name="width">{{layer.size.width}}</st:option>
+                            <st:option name="height">{{layer.size.height}}</st:option>
+                        {% endif %}
+                    </st:icons>
+                {% endfor %}
+            </st:layers>
+        </st:map>
+        <div id="snapshots"></div>
+    {% endif %}
+    <st:form name="upload-gpx" url="/gpx/$key" modal="true" type="form">
+        <st:field label="GPX File" type="file" property="image"/>
+        <st:footer>
+            <st:action mode="new" label="Upload" action="save"/>
+            <st:action mode="new" label="Cancel" action="cancel"/>
+        </st:footer>
+    </st:form>
+</st:tab>
+
+{% endblock tabs %}

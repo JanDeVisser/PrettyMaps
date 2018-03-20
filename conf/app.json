@@ -1,0 +1,28 @@
+{
+    "author": "Jan de Visser",
+    "version": "1.0",
+    "app_id": "prettymaps",
+    "about": {
+        "version": "1.0",
+        "copyright": "(c) 2012-2018 finiandarcy.com",
+        "contact": "info@finiandarcy.com",
+        "contacturl": "http://www.finiandarcy.com",
+        "application_name": "Pretty Maps"
+    },
+    "mounts": [
+        { "path": "/project/.+", "app": "prettymaps.index.app", "roles": [ "user" ]},
+        { "path": "/map/.+", "app": "prettymaps.index.app", "roles": [ "user" ]},
+        { "path": "/gpx/.+", "app": "prettymaps.index.app", "roles": [ "user" ]},
+        { "path": "/layer/.+", "app": "prettymaps.index.app", "roles": [ "user" ]}
+    ],
+    "config": {
+        "layers": [
+            {
+                "name": "logo",
+                "label": "Logo",
+                "icon": "/image/runwaterloo.png",
+                "size": { "width": 200, "height": 90 }
+            }
+        ]
+    }
+}
