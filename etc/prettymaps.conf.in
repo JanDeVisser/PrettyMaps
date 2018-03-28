@@ -1,0 +1,10 @@
+WSGIDaemonProcess prettymaps user=jan group=jan threads=25 python-home=[Python Home] python-path=[Path]/grumble:[Path]/PrettyMaps display-name=%{GROUP}
+WSGIProcessGroup prettymaps
+WSGICallableObject app
+WSGIScriptAlias / [Path]/grumble/grit/grit.wsgi
+
+<Directory [Path]>
+   Require all granted
+</Directory>
+
+# LogLevel debug
