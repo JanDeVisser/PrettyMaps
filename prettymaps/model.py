@@ -15,3 +15,28 @@
 # with this program; if not, write to the Free Software Foundation, Inc., 51
 # Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
+
+import grumble
+import grumble.image
+
+
+class GPXLayer(grumble.Model):
+    gpx = grumble.image.ImageProperty()
+
+    def after_insert(self):
+        project = self.parent()
+        project.current_gpx = self
+        project.put()
+
+
+class Project(grumble.Model):
+    project_name = grumble.TextProperty(verbose_name="Name")
+    description = grumble.TextProperty()
+
+
+class Map(grumble.Model):
+    map_name = grumble.TextProperty(verbose_name="Name")
+    description = grumble.TextProperty()
+    gpx = grumble.image.ImageProperty()
+    layers = grumble.JSONProperty();
+    # current_gpx = grumble.ReferenceProperty(GPXLayer)

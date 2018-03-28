@@ -86,7 +86,19 @@ if __name__ == '__main__':
     d = d["data"]
     print "Requested Project and got OK"
 
-    d["description"] = d["description"] + " XX"
+    descr = d["description"]
+    d["description"] = descr + " XX"
+    request = webapp2.Request.blank("/json/project")
+    request.headers['Cookie'] = cookie
+    request.method = "POST"
+    request.content_type = "application/x-www-form-urlencoded"
+    request.charset = "utf8"
+    request.json = d
+    response = request.get_response(app)
+    assert response.status_int == 200, "Expected 200 OK, got %s" % response.status
+    print "Updated Project and got OK"
+
+    d["description"] = descr
     request = webapp2.Request.blank("/json/project")
     request.headers['Cookie'] = cookie
     request.method = "POST"
@@ -122,6 +134,18 @@ if __name__ == '__main__':
     bike_map = d["data"][0]["key"]
     print "Created Bike Map and got OK. Map key:", bike_map
 
+    request = webapp2.Request.blank("/json/map",
+        POST='{ "parent": "%s", "map_name": "7 Miler", "description": "Baden Road Races 7 Miler" }' % project)
+    request.headers['Cookie'] = cookie
+    request.method = "POST"
+    request.content_type = "application/x-www-form-urlencoded"
+    request.charset = "utf8"
+    response = request.get_response(app)
+    assert response.status_int == 200, "Expected 200 OK, got %s" % response.status
+    d = response.json
+    seven_miler_map = d["data"][0]["key"]
+    print "Created Seven Miler Map and got OK. Map key:", seven_miler_map
+
     request = webapp2.Request.blank("/json/map/%s" % run_map)
     request.headers['Cookie'] = cookie
     response = request.get_response(app)
@@ -147,6 +171,15 @@ if __name__ == '__main__':
     response = request.get_response(app)
     assert response.status_int == 200, "Expected 200 OK, got %s" % response.status
     print "Uploaded Bike GPX document and got OK"
+
+    with open("test/Baden7Miler.gpx", "rb") as fh:
+        gpx = fh.read()
+    request = webapp2.Request.blank("/gpx/%s" % seven_miler_map, POST = { "image": ("BadenDuBike.gpx", gpx) })
+    request.headers['Cookie'] = cookie
+    request.method = "POST"
+    response = request.get_response(app)
+    assert response.status_int == 200, "Expected 200 OK, got %s" % response.status
+    print "Uploaded Seven Miler GPX document and got OK"
 
     #
     # try:

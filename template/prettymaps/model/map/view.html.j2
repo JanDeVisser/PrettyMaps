@@ -4,7 +4,6 @@
     {{ import_maps() }}
     <script src="https://rawgithub.com/mpetazzoni/leaflet-gpx/master/gpx.js"></script>
     <script src="https://mapbox.github.io/leaflet-image/leaflet-image.js"></script>
-    {{ import_script("prettymap") }}
 {% endblock %}
 
 {% block css %}
@@ -55,24 +54,30 @@
                 <st:tile id="mapbox.streets"/>
                 <st:tile id="mapbox.dark"/>
                 <st:tile id="mapbox.bikehike"/>
+                <st:tile id="thunderforest.landscape"/>
+                <st:tile id="thunderforest.outdoors"/>
+                <st:tile id="thunderforest.transport"/>
                 <st:gpx url="/gpx/{{key}}">
                     <st:polyline_options>
                         <st:option name="weight">5</st:option>
                         <st:option name="color">#4e95ff</st:option>
                     </st:polyline_options>
                     <st:marker_options>
-                        <st:option name="iconSize">16</st:option>
-                        <st:option name="startIconUrl">/image/pin-icon-start.png</st:option>
+                        <st:option name="iconSize">24</st:option>
+                        <st:option name="iconAnchor">[12,12]</st:option>
+                        <st:option name="startIconUrl">/image/start.png</st:option>
                         <st:option name="endIconUrl">/image/finish.png</st:option>
-                        <st:option name="shadowUrl">/image/pin-shadow.png</st:option>
+                        <st:option name="shadowUrl"></st:option>
                     </st:marker_options>
                 </st:gpx>
                 {% for layer in config.layers %}
                     <st:icons id="{{layer.name}}" label="{{layer.label}}" url="/layer/{{layer.name}}/{{key}}"
                               coordinate="position" icon="{{layer.icon}}">
                         {% if layer.size %}
-                            <st:option name="width">{{layer.size.width}}</st:option>
-                            <st:option name="height">{{layer.size.height}}</st:option>
+                            <fallback>
+                                <st:option name="width">{{layer.size.width}}</st:option>
+                                <st:option name="height">{{layer.size.height}}</st:option>
+                            </fallback>
                         {% endif %}
                     </st:icons>
                 {% endfor %}
