@@ -58,7 +58,8 @@ app = webapp2.WSGIApplication([webapp2.Route(
                                    defaults={
                                         "kind": prettymaps.model.Map,
                                         "prop": "gpx",
-                                        "content_type": "text/xml"
+                                        "content_type": "text/xml",
+                                        "extension": "gpx",
                                    }
                                ),
 

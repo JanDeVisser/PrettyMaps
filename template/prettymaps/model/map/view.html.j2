@@ -20,7 +20,7 @@
 {% block tabs %}
 
 <script>
-    var key = "{{key}}";
+    var key = '{{key}}';
 
     function getSelectedLayer() {
         return this.getLayer("logo");
@@ -39,6 +39,7 @@
         <st:footer>
             <st:action mode="view" label="Upload GPX" action="form" form="upload-gpx" form-mode="new"/>
             {% if gpx_map %}
+                <st:action mode="view" label="Download GPX" action="link" href="/gpx/$$"/>
                 <st:action mode="view" label="Snapshot" action="snapshot" name="snapshot"/>
             {% endif %}
             <st:action mode="view" label="Edit" action="edit"/>
